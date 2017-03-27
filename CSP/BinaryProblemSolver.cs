@@ -10,7 +10,7 @@ namespace CSP
         private bool?[,] Board { get; set; }
         private int N { get; set; }
         private int M { get; set; }
-        private List<bool> AvaibleValues = new List<bool>() {true, false};
+        private readonly List<bool> _avaibleValues = new List<bool>() {true, false};
         private bool Log = false;
 
         private const int MaxRepeat = 2;
@@ -78,8 +78,6 @@ namespace CSP
         {
             var result = Backtracking(Board);
             Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
-
-//            BacktrackingOnArray();
         }
 
         public bool CheckBoard(bool?[,] board)
@@ -188,7 +186,7 @@ namespace CSP
             if (!GetNextUnassigned(board, ref row, ref col))
                 return true;
 
-            foreach (var value in AvaibleValues)
+            foreach (var value in _avaibleValues)
             {
                 board[row, col] = value;
                 if (CheckConstraints(board, row, col))
@@ -200,36 +198,7 @@ namespace CSP
             board[row, col] = null;
             return false;
         }
-
-        private void BacktrackingOnArray()
-        {
-            for (var i = 0; i < N; i++)
-            {
-                for (var j = 0; j < N; j++)
-                {
-                    if (Board[i, j] == null)
-                    {
-                        Board[i, j] = true;
-                        var check = CheckConstraints(Board, i, j);
-                        if (Log) Console.WriteLine($"Sprawdzenie ({i}, {j}) -> {check}");
-                        if (!check)
-                            Board[i, j] = false;
-                    }
-                }
-            }
-        }
-
-        private List<Tuple<int, int>> GetUnasignetPairs(bool?[,] board)
-        {
-            var length = board.GetLength(1);
-            var pairs = new List<Tuple<int, int>>();
-            for (var i = 0; i < length; i++)
-                for (var j = 0; j < length; j++)
-                    if (board[i, j] == null)
-                        pairs.Add(new Tuple<int, int>(i, j));
-            return pairs.OrderByDescending(x => Board.GetRow(x.Item1).Count(y => y == null)).ToList();
-        }
-
+        
         private bool GetNextUnassigned(bool?[,] board, ref int row, ref int col)
         {
             var length = board.GetLength(1);
