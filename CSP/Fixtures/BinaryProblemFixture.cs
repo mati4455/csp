@@ -148,41 +148,33 @@ namespace CSP.Fixtures
         */
         
         [TestMethod]
-        public void ResolveEmptyBoard_40_10x10_True()
+        [DataTestMethod]
+        [DataRow(5)]
+        [DataRow(10)]
+        [DataRow(15)]
+        [DataRow(20)]
+        [DataRow(25)]
+        [DataRow(35)]
+        [DataRow(40)]
+        [DataRow(45)]
+        [DataRow(50)]
+        [DataRow(55)]
+        [DataRow(60)]
+        [DataRow(65)]
+        [DataRow(70)]
+        [DataRow(75)]
+        [DataRow(80)]
+        [DataRow(85)]
+        [DataRow(90)]
+        [DataRow(95)]
+        public void ResolveEmptyBoard_10x10_True(int m)
         {
-            Console.WriteLine("------------------ Poczatek testu ------------------");
+            Console.WriteLine("\n------------------ Poczatek testu ------------------");
+            Console.WriteLine($"Liczba pol do uzupelnienia: {m}");
             var newBoard = (bool?[,])StartBoardTrue.Clone();
             var rand = new Random();
             var added = 0;
             var n = newBoard.GetLength(1);
-            var m = 40;
-            while (added < m)
-            {
-                var x = rand.Next(0, n);
-                var y = rand.Next(0, n);
-
-                if (newBoard[x, y] != null)
-                {
-                    newBoard[x, y] = null;
-                    added++;
-                }
-            }
-            Solver.LoadBoard(newBoard);
-            Console.WriteLine(Solver.PrintedBoard());
-            Solver.Run();
-            Console.WriteLine("------------------- Koniec testu -------------------");
-            Assert.AreEqual(true, Solver.CheckBoard());
-        }
-
-        [TestMethod]
-        public void ResolveEmptyBoard_80_10x10_True()
-        {
-            Console.WriteLine("------------------ Poczatek testu ------------------");
-            var newBoard = (bool?[,])StartBoardTrue.Clone();
-            var rand = new Random();
-            var added = 0;
-            var n = newBoard.GetLength(1);
-            var m = 80;
             while (added < m)
             {
                 var x = rand.Next(0, n);

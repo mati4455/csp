@@ -189,11 +189,8 @@ namespace CSP
             foreach (var value in _avaibleValues)
             {
                 board[row, col] = value;
-                if (CheckConstraints(board, row, col))
-                {
-                    if (Backtracking(board))
-                        return true;
-                }
+                if (CheckConstraints(board, row, col) && Backtracking(board))
+                    return true;
             }
             board[row, col] = null;
             return false;
