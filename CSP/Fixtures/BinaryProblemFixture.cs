@@ -39,25 +39,31 @@ namespace CSP.Fixtures
         [TestMethod]
         public void CheckBoardTrue_01()
         {
-            var board = StartBoardTrue;
+            Console.WriteLine("------------------ Poczatek testu ------------------");
+            var board = (bool?[,])StartBoardTrue.Clone();
             Solver.LoadBoard(board);
+            Console.WriteLine("------------------- Koniec testu -------------------");
             Assert.AreEqual(true, Solver.CheckBoard());
         }
 
         [TestMethod]
         public void CheckBoardTrue_02()
         {
+            Console.WriteLine("------------------ Poczatek testu ------------------");
             var board = StartBoardTrue;
             board[0, 0] = board[2, 6] = board[7, 7] = null;
             Solver.LoadBoard(board);
+            Console.WriteLine("------------------- Koniec testu -------------------");
             Assert.AreEqual(false, Solver.CheckBoard());
         }
         
         [TestMethod]
         public void CheckConstraintTure_01()
         {
-            var board = StartBoardTrue;
+            Console.WriteLine("------------------ Poczatek testu ------------------");
+            var board = (bool?[,]) StartBoardTrue.Clone();
             board[0, 0] = board[2, 6] = board[7, 7] = null;
+            Console.WriteLine("------------------- Koniec testu -------------------");
             Assert.AreEqual(true, Solver.CheckConstraints(board, 0, 0));
             Assert.AreEqual(true, Solver.CheckConstraints(board, 2, 6));
             Assert.AreEqual(true, Solver.CheckConstraints(board, 7, 7));
@@ -66,14 +72,18 @@ namespace CSP.Fixtures
         [TestMethod]
         public void CheckBoardFalse()
         {
-            Solver.LoadBoard(StartBoardFalse);
+            Console.WriteLine("------------------ Poczatek testu ------------------");
+            var board = (bool?[,])StartBoardFalse.Clone();
+            Solver.LoadBoard(board);
+            Console.WriteLine("------------------- Koniec testu -------------------");
             Assert.AreEqual(false, Solver.CheckBoard());
         }
 
         [TestMethod]
         public void ResolveBoardTrue()
         {
-            var newBoard = StartBoardTrue;
+            Console.WriteLine("------------------ Poczatek testu ------------------");
+            var newBoard = (bool?[,]) StartBoardTrue.Clone();
             newBoard[2, 4] = null;
             newBoard[5, 4] = null;
             newBoard[2, 6] = null;
@@ -109,52 +119,86 @@ namespace CSP.Fixtures
             Console.WriteLine(Solver.PrintedBoard());
             Solver.Run();
             Console.WriteLine(Solver.PrintedBoard());
+            Console.WriteLine("------------------- Koniec testu -------------------");
             Assert.AreEqual(true, Solver.CheckBoard());
         }
 
-        
+        /*
         [TestMethod]
         public void ResolveEmptyBoard_4x4_True()
         {
-            Solver.GenerateBoard(4, 5);
+            Console.WriteLine("------------------ Poczatek testu ------------------");
+            Solver.GenerateBoard(4, 10);
             Console.WriteLine(Solver.PrintedBoard());
             Solver.Run();
-            Console.WriteLine(Solver.PrintedBoard());
+            Console.WriteLine("------------------- Koniec testu -------------------");
             Assert.AreEqual(true, Solver.CheckBoard());
         }
-        
+        */
         /*
         [TestMethod]
         public void ResolveEmptyBoard_6x6_True()
         {
-            int n = 6;
-            var newBoard = new bool?[n, n];
-            for (var i = 0; i < n; i++)
-                for (var j = 0; j < n; j++)
-                    newBoard[i, j] = null;
-
-            Solver.LoadBoard(newBoard);
+            Solver.GenerateBoard(6, 10);
             Console.WriteLine(Solver.PrintedBoard());
             Solver.Run();
             Console.WriteLine(Solver.PrintedBoard());
             Assert.AreEqual(true, Solver.CheckBoard());
         }
         */
-        /*
+        
         [TestMethod]
-        public void ResolveEmptyBoard_10x10_True()
+        public void ResolveEmptyBoard_40_10x10_True()
         {
-            int n = 10;
-            var newBoard = new bool?[n, n];
-            for (var i = 0; i < n; i++)
-                for (var j = 0; j < n; j++)
-                    newBoard[i, j] = null;
+            Console.WriteLine("------------------ Poczatek testu ------------------");
+            var newBoard = (bool?[,])StartBoardTrue.Clone();
+            var rand = new Random();
+            var added = 0;
+            var n = newBoard.GetLength(1);
+            var m = 40;
+            while (added < m)
+            {
+                var x = rand.Next(0, n);
+                var y = rand.Next(0, n);
 
+                if (newBoard[x, y] != null)
+                {
+                    newBoard[x, y] = null;
+                    added++;
+                }
+            }
             Solver.LoadBoard(newBoard);
             Console.WriteLine(Solver.PrintedBoard());
             Solver.Run();
-            Console.WriteLine(Solver.PrintedBoard());
+            Console.WriteLine("------------------- Koniec testu -------------------");
             Assert.AreEqual(true, Solver.CheckBoard());
-        }*/
+        }
+
+        [TestMethod]
+        public void ResolveEmptyBoard_80_10x10_True()
+        {
+            Console.WriteLine("------------------ Poczatek testu ------------------");
+            var newBoard = (bool?[,])StartBoardTrue.Clone();
+            var rand = new Random();
+            var added = 0;
+            var n = newBoard.GetLength(1);
+            var m = 80;
+            while (added < m)
+            {
+                var x = rand.Next(0, n);
+                var y = rand.Next(0, n);
+
+                if (newBoard[x, y] != null)
+                {
+                    newBoard[x, y] = null;
+                    added++;
+                }
+            }
+            Solver.LoadBoard(newBoard);
+            Console.WriteLine(Solver.PrintedBoard());
+            Solver.Run();
+            Console.WriteLine("------------------- Koniec testu -------------------");
+            Assert.AreEqual(true, Solver.CheckBoard());
+        }
     }
 }

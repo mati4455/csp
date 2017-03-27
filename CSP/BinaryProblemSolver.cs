@@ -11,7 +11,7 @@ namespace CSP
         private int N { get; set; }
         private int M { get; set; }
         private List<bool> AvaibleValues = new List<bool>() {true, false};
-        private bool Log = true;
+        private bool Log = false;
 
         private const int MaxRepeat = 2;
 
@@ -45,6 +45,29 @@ namespace CSP
                 }
             }
         }
+        
+        public string PrintedBoard()
+        {
+            return PrintedBoard(Board);
+        }
+
+        private string PrintedBoard(bool?[,] board)
+        {
+            if (board == null) return "Brak rozwiazania...";
+
+            var builder = new StringBuilder();
+            var length = board.GetLength(1);
+            for (var i = 0; i < length; i++)
+            {
+                for (var j = 0; j < length; j++)
+                {
+                    builder.Append(board[i, j] == null ? "-" : board[i, j] == true ? "1" : "0");
+                    builder.Append(" ");
+                }
+                builder.AppendLine();
+            }
+            return builder.ToString();
+        }
 
         public bool CheckBoard()
         {
@@ -53,10 +76,8 @@ namespace CSP
 
         public void Run()
         {
-            var pairs = GetUnasignetPairs(Board);
-            var result = Backtracking(-1, -1, pairs);
-            if (result != null)
-                Board = result;
+            var result = Backtracking(Board);
+            Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
 
 //            BacktrackingOnArray();
         }
@@ -80,6 +101,8 @@ namespace CSP
             var n = rowValue.Length;
             var half = n / 2;
             var check = true;
+
+            if (Log) Console.WriteLine("-----------------");
 
             if (Log) Console.WriteLine($"Uzupelniono pole ({row}, {col})");
 
@@ -109,49 +132,27 @@ namespace CSP
             if (!validCol) check = false;
 
             // sprawdzenie unikalności kolumn i wierwszy
-            /*   for (var i = 0; i < n; i++)
-               {
-                   if (i != row && rowValue.Count(x => x == null) == 0 && rowValue.SequenceEqual(board.GetRow(i)))
-                   {
-                       if (Log) Console.WriteLine($"Powtorzone wiersze: {row} - {i}");
-                       check =  false;
-                   }
-                   if (i != col && colValue.Count(x => x == null) == 0 && colValue.SequenceEqual(board.GetCol(i)))
-                   {
-                       if (Log) Console.WriteLine($"Powtorzone kolumny: {col} - {i}");
-                       check =  false;
-                   }
-               }*/
+            for (var i = 0; i < n; i++)
+            {
+                if (i != row && rowValue.Count(x => x == null) == 0 && rowValue.SequenceEqual(board.GetRow(i)))
+                {
+                    if (Log) Console.WriteLine($"Powtorzone wiersze: {row} - {i}");
+                    check = false;
+                }
+                if (i != col && colValue.Count(x => x == null) == 0 && colValue.SequenceEqual(board.GetCol(i)))
+                {
+                    if (Log) Console.WriteLine($"Powtorzone kolumny: {col} - {i}");
+                    check = false;
+                }
+            }
 
+            //Console.WriteLine(PrintedBoard());
 
-            Console.WriteLine(PrintedBoard());
+            //Console.ReadKey();
 
-               Console.ReadKey();
+            if (Log) Console.WriteLine($"----------------- -> {check}\n\n");
 
             return check;
-        }
-
-        public string PrintedBoard()
-        {
-            return PrintedBoard(Board);
-        }
-
-        private string PrintedBoard(bool?[,] board)
-        {
-            if (board == null) return "Brak rozwiazania...";
-
-            var builder = new StringBuilder();
-            var length = board.GetLength(1);
-            for (var i = 0; i < length; i++)
-            {
-                for (var j = 0; j < length; j++)
-                {
-                    builder.Append(board[i, j] == null ? "-" : board[i, j] == true ? "1" : "0");
-                    builder.Append(" ");
-                }
-                builder.AppendLine();
-            }
-            return builder.ToString();
         }
 
         private bool CheckRepeat(bool?[] data)
@@ -179,38 +180,25 @@ namespace CSP
             return true;
         }
 
-        private bool?[,] Backtracking(int row, int col, List<Tuple<int, int>> pairs)
+        private bool Backtracking(bool?[,] board)
         {
-            if (pairs.Count == 0) return Board;
-            
-            foreach (var pair in pairs)
+            var row = -1;
+            var col = -1;
+
+            if (!GetNextUnassigned(board, ref row, ref col))
+                return true;
+
+            foreach (var value in AvaibleValues)
             {
-                Board[pair.Item1, pair.Item2] = false;
-                var check = CheckConstraints(Board, pair.Item1, pair.Item2);
-                if (check)
+                board[row, col] = value;
+                if (CheckConstraints(board, row, col))
                 {
-                    pairs.Remove(pair);
-                    var result = Backtracking(pair.Item1, pair.Item2, pairs);
-                    if (result != null && CheckBoard(result)) return Board;
-                }
-                else
-                {
-                    Board[pair.Item1, pair.Item2] = true;
-                    check = CheckConstraints(Board, pair.Item1, pair.Item2);
-                    if (check)
-                    {
-                        pairs.Remove(pair);
-                        var result = Backtracking(pair.Item1, pair.Item2, pairs);
-                        if (result != null && CheckBoard(result)) return Board;
-                    }
-                    else
-                    {
-                        return pairs.Count == 1 ? null : Backtracking(row, col, pairs);
-                    }
+                    if (Backtracking(board))
+                        return true;
                 }
             }
-
-            return null;
+            board[row, col] = null;
+            return false;
         }
 
         private void BacktrackingOnArray()
@@ -240,6 +228,20 @@ namespace CSP
                     if (board[i, j] == null)
                         pairs.Add(new Tuple<int, int>(i, j));
             return pairs.OrderByDescending(x => Board.GetRow(x.Item1).Count(y => y == null)).ToList();
+        }
+
+        private bool GetNextUnassigned(bool?[,] board, ref int row, ref int col)
+        {
+            var length = board.GetLength(1);
+            for (var i = 0; i < length; i++)
+                for (var j = 0; j < length; j++)
+                    if (board[i, j] == null)
+                    {
+                        row = i;
+                        col = j;
+                        return true;
+                    }
+            return false;
         }
     }
 }

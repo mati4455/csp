@@ -52,7 +52,7 @@ namespace Runner
             newBoard[4, 0] = null;
             newBoard[5, 0] = null;
             newBoard[6, 0] = null;
-            //newBoard[7, 0] = null;
+            newBoard[7, 0] = null;
             newBoard[8, 0] = null;
             newBoard[9, 0] = null;
 
