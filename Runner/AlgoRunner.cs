@@ -10,57 +10,57 @@ namespace Runner
     {
         private bool?[,] StartBoardTrue =
         {
-            {false, false, true, false, false, true, true, false, true, true},
-            {false, false, true, false, true, false, true, false, true, true},
-            {true, true, false, true, false, true, false, true, false, false},
-            {false, false, true, false, true, false, true, true, false, true},
-            {false, true, false, true, false, true, false, false, true, true},
-            {true, false, true, false, true, false, false, true, true, false},
-            {true, true, false, true, false, false, true, true, false, false},
-            {false, false, true, true, false, true, true, false, false, true},
-            {true, true, false, false, true, true, false, false, true, false},
-            {true, true, false, true, true, false, false, true, false, false}
+            {true, false, null, false, null, null},
+            {null, null, true, null, true, null},
+            {null, null, null, null, false, null},
+            {null, null, null, true, null, null},
+            {null, null, true, null, null, null },
+            {null, false, null, null, null, null }
         };
 
-        public AlgoRunner()
-        {
+        public AlgoRunner(int n, int m)
+        {/*
             var newBoard = StartBoardTrue;
-            newBoard[2, 4] = null;
-            newBoard[5, 4] = null;
-            newBoard[2, 6] = null;
-            newBoard[3, 3] = null;
-            newBoard[1, 6] = null;
-            newBoard[2, 6] = null;
-            newBoard[3, 6] = null;
-            newBoard[5, 5] = null;
-            newBoard[1, 9] = null;
-            newBoard[5, 6] = null;
-            newBoard[8, 8] = null;
-            newBoard[1, 9] = null;
-            newBoard[9, 5] = null;
-            newBoard[1, 4] = null;
-            newBoard[1, 8] = null;
-            newBoard[1, 9] = null;
-            newBoard[4, 9] = null;
-            newBoard[7, 9] = null;
-            newBoard[2, 9] = null;
-            newBoard[3, 1] = null;
-            newBoard[5, 2] = null;
-            newBoard[3, 5] = null;
-            newBoard[0, 0] = null;
-            newBoard[0, 4] = null;
-            newBoard[4, 0] = null;
-            newBoard[5, 0] = null;
-            newBoard[6, 0] = null;
-            newBoard[7, 0] = null;
-            newBoard[8, 0] = null;
-            newBoard[9, 0] = null;
 
             var solver = new BinaryProblemSolver();
             solver.LoadBoard(StartBoardTrue);
             Console.WriteLine(solver.PrintedBoard());
             solver.Run();
             Console.WriteLine(solver.PrintedBoard());
+            */
+            Console.WriteLine($"--------------- Poczatek testu {n}x{n} ---------------");
+            var board = new bool?[n, n];
+            for (var i = 0; i < n; i++)
+            {
+                for (var j = 0; j < n; j++)
+                {
+                    board[i, j] = null;
+                }
+            }
+
+            var rand = new Random();
+            var added = 0;
+            while (added < m)
+            {
+                var x = rand.Next(0, n);
+                var y = rand.Next(0, n);
+
+                if (board[x, y] == null)
+                {
+                    board[x, y] = rand.NextDouble() >= 0.5;
+                    if (BinaryProblemSolver.CheckConstraints(board, x, y))
+                        added++;
+                    else
+                        board[x, y] = null;
+                }
+            }
+
+            var solver = new BinaryProblemSolver();
+            solver.LoadBoard(board);
+            Console.WriteLine(solver.PrintedBoard());
+            solver.Run();
+            Console.WriteLine("------------------- Koniec testu -------------------");
+
         }
     }
 }

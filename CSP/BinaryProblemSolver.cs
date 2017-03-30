@@ -11,7 +11,7 @@ namespace CSP
         private int N { get; set; }
         private int M { get; set; }
         private readonly List<bool> _avaibleValues = new List<bool>() {true, false};
-        private bool Log = false;
+        private static bool Log = false;
 
         private const int MaxRepeat = 2;
 
@@ -73,7 +73,7 @@ namespace CSP
         {
             return CheckBoard(Board);
         }
-
+        
         public void Run()
         {
             var result = Backtracking(Board);
@@ -92,13 +92,12 @@ namespace CSP
             return check;
         }
 
-        public bool CheckConstraints(bool?[,] board, int row, int col)
+        public static bool CheckConstraints(bool?[,] board, int row, int col)
         {
             var rowValue = board.GetRow(row);
             var colValue = board.GetCol(col);
             var n = rowValue.Length;
             var half = n / 2;
-            var check = true;
 
             if (Log) Console.WriteLine("-----------------");
 
@@ -110,7 +109,7 @@ namespace CSP
             if (zerosRowCount > half || onesRowCount > half)
             {
                 if (Log) Console.WriteLine($"Rozna liczba zer i jedynek w wierszu: {row}");
-                check = false;
+                return false;
             }
 
             // liczba 0 i 1 w kolumnie ma być taka sama
@@ -119,28 +118,36 @@ namespace CSP
             if (zerosColCount > half || onesColCount > half)
             {
                 if (Log) Console.WriteLine($"Rozna liczba zer i jedynek w kolumnie: {col}");
-                check = false;
+                return false;
             }
 
             // symbol nie może powtarzać się dwa razy pod rząd
             var validRow = CheckRepeat(rowValue);
-            if (!validRow) check = false;
+            if (!validRow)
+                return false;
 
             var validCol = CheckRepeat(colValue);
-            if (!validCol) check = false;
+            if (!validCol)
+                return false;
+
+            var isNullInRow = ContainsNull(rowValue);
+            var isNullInCol = ContainsNull(colValue);
 
             // sprawdzenie unikalności kolumn i wierwszy
             for (var i = 0; i < n; i++)
             {
-                if (i != row && rowValue.Count(x => x == null) == 0 && rowValue.SequenceEqual(board.GetRow(i)))
+                var currRow = board.GetRow(i);
+                if (!isNullInRow && i != row && rowValue.SequenceEqual(currRow))
                 {
                     if (Log) Console.WriteLine($"Powtorzone wiersze: {row} - {i}");
-                    check = false;
+                    return false;
                 }
-                if (i != col && colValue.Count(x => x == null) == 0 && colValue.SequenceEqual(board.GetCol(i)))
+
+                var currCol = board.GetCol(i);
+                if (!isNullInCol && i != col && !ContainsNull(currCol) && colValue.SequenceEqual(currCol))
                 {
                     if (Log) Console.WriteLine($"Powtorzone kolumny: {col} - {i}");
-                    check = false;
+                    return false;
                 }
             }
 
@@ -148,12 +155,17 @@ namespace CSP
 
             //Console.ReadKey();
 
-            if (Log) Console.WriteLine($"----------------- -> {check}\n\n");
+            //if (Log) Console.WriteLine($"----------------- -> {check}\n\n");
 
-            return check;
+            return true;
         }
 
-        private bool CheckRepeat(bool?[] data)
+        private static bool ContainsNull(bool?[] tab)
+        {
+            return tab.Any(x => x == null);
+        }
+
+        private static bool CheckRepeat(bool?[] data)
         {
             var currentSign = data[0];
             var repeatCount = 0;
