@@ -76,7 +76,8 @@ namespace CSP
         
         public void Run()
         {
-            var result = Backtracking(Board);
+            //var result = Backtracking(Board);
+            var result = ForwardChecking(Board);
             Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
         }
 
@@ -207,7 +208,34 @@ namespace CSP
             board[row, col] = null;
             return false;
         }
-        
+
+        private bool ForwardChecking(bool?[,] board)
+        {
+            var row = -1;
+            var col = -1;
+
+            if (!GetNextUnassigned(board, ref row, ref col))
+                return true;
+
+            var _newDomain = new List<bool>();
+            foreach (var value in _avaibleValues)
+            {
+                board[row, col] = value;
+                if (CheckConstraints(board, row, col))
+                    _newDomain.Add(value);
+            }
+
+            foreach (var value in _newDomain)
+            {
+                board[row, col] = value;
+                if (ForwardChecking(board))
+                    return true;
+            }
+
+            board[row, col] = null;
+            return false;
+        }
+
         private bool GetNextUnassigned(bool?[,] board, ref int row, ref int col)
         {
             var length = board.GetLength(1);
