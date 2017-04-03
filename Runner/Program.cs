@@ -58,8 +58,36 @@ namespace Runner
                 Console.Clear();
                 Console.WriteLine("Witaj w programie rozwiazujacym problem kolorowania grafu harmonicznego.");
 
-                var solver = new GraphColoringProblemSolver(5);
-                solver.Run();
+                /*
+                var solver1 = new GraphColoringProblemSolver(2);
+                solver1.Run();
+                
+                var solver2 = new GraphColoringProblemSolver(3);
+                solver2.Run();
+
+                var solver3 = new GraphColoringProblemSolver(4);
+                solver3.Run();
+
+                var solver4 = new GraphColoringProblemSolver(5);
+                solver4.Run();
+
+                var solver5 = new GraphColoringProblemSolver(6);
+                solver5.Run();
+
+                var solver6 = new GraphColoringProblemSolver(7);
+                solver6.Run();
+
+                var solver7 = new GraphColoringProblemSolver(8);
+                solver7.Run();
+
+                var solver8 = new GraphColoringProblemSolver(9);
+                solver8.Run();
+
+                var solver9 = new GraphColoringProblemSolver(10);
+                solver9.Run();*/
+
+                var solver8 = new GraphColoringProblemSolver(4);
+                solver8.Run();
 
                 Console.ReadKey();
             }
