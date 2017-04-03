@@ -10,7 +10,7 @@ namespace CSP
         private int?[,] Board { get; set; }
         private int N { get; set; }
         private List<int> _availbleValues;
-        private Dictionary<int, HashSet<int>> _usedColors;
+        private HashSet<Point> _usedColors;
 
         public GraphColoringProblemSolver(int n) {
             N = n;
@@ -29,19 +29,19 @@ namespace CSP
             Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
         }
         
-        public bool CheckConstraints(HashSet<int> neighbors, int row, int col)
+        public bool CheckConstraints(HashSet<int> neighbors, int row, int col, int color)
         {
             neighbors.Clear();
             CheckAndAddNearbear(neighbors, row - 1, col);
             CheckAndAddNearbear(neighbors, row, col - 1);
             
-            var color = Board[row, col].Value;
+            //var color = Board[row, col].Value;
             var neighbor = !neighbors.Contains(color);
-            var harmony = !_usedColors.ContainsKey(color) || !_usedColors[color].Any(neighbors.Contains);
+            var harmony = !neighbors.Any(x => _usedColors.Contains(new Point(color, x)) || _usedColors.Contains(new Point(x, color)));
             var check = neighbor && harmony;
 
-            if (check)
-                AddColorPair(row, col, neighbors);
+            /*if (check)
+                AddColorPair(row, col, neighbors);*/
             return check;
         }
 
@@ -61,11 +61,17 @@ namespace CSP
             var neighbors = new HashSet<int>();
             foreach (var value in _availbleValues)
             {
-                board[row, col] = value;
-                if (CheckConstraints(neighbors, row, col) && Backtracking(board))
-                    return true;
-                RemoveColorPair(row, col, neighbors);
-                board[row, col] = null;
+                if (CheckConstraints(neighbors, row, col, value))
+                {
+                    board[row, col] = value;
+                    AddColorPair(row, col, neighbors);
+
+                    if (Backtracking(board))
+                        return true;
+
+                    RemoveColorPair(row, col, neighbors);
+                    board[row, col] = null;
+                }
             }
             return false;
         }
@@ -73,26 +79,15 @@ namespace CSP
         private void AddColorPair(int row, int col, HashSet<int> neighbors)
         {
             var color = Board[row, col].Value;
-            
-            
             foreach (var neighbor in neighbors)
-            {
-                _usedColors[color].Add(neighbor);
-                _usedColors[neighbor].Add(color);
-            }
+                _usedColors.Add(new Point(color, neighbor));
         }
 
         private void RemoveColorPair(int row, int col, HashSet<int> neighbors)
         {
-            var color = (int) Board[row, col];
-            var liczbaParBefore = _usedColors.Sum(x => x.Value.Count) / 2;
+            var color = Board[row, col].Value;
             foreach (var neighbor in neighbors)
-            {
-                _usedColors[color].Remove(neighbor);
-                //_usedColors[neighbor].Remove(color);
-            }
-            var liczbaParAfter = _usedColors.Sum(x => x.Value.Count) / 2;
-            ;
+                _usedColors.Remove(new Point(color, neighbor));
         }
 
         private bool GetNextUnassigned(int?[,] board, ref int row, ref int col)
@@ -131,8 +126,7 @@ namespace CSP
             int variablesCount = N % 2 == 0 ? 2 * N : 2 * N + 1;
             _availbleValues = Enumerable.Range(1, variablesCount).ToList();
 
-            _usedColors = new Dictionary<int, HashSet<int>>();
-            _availbleValues.ForEach(x => _usedColors.Add(x, new HashSet<int>()));
+            _usedColors = new HashSet<Point>();
         }
 
         private static bool ContainsNull(int?[] tab)

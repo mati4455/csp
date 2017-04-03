@@ -84,11 +84,25 @@ namespace Runner
                 solver8.Run();
 
                 var solver9 = new GraphColoringProblemSolver(10);
-                solver9.Run();*/
+                solver9.Run();
+                */
 
-                var solver8 = new GraphColoringProblemSolver(4);
+                //                var p1 = new Point(1, 3);
+                //                var p2 = new Point(3, 1);
+                //                Console.WriteLine(p1.GetHashCode());
+                //                Console.WriteLine(p2.GetHashCode());
+                //                Console.WriteLine(p1.Equals(p2));
+                //
+                //                Console.ReadKey();
+
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+
+                var solver8 = new GraphColoringProblemSolver(12);
                 solver8.Run();
-
+                
+                watch.Stop();
+                var elapsedMs = watch.ElapsedMilliseconds;
+                Console.WriteLine(elapsedMs);
                 Console.ReadKey();
             }
         }
