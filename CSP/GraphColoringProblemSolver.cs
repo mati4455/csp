@@ -23,9 +23,11 @@ namespace CSP
             return PrintedBoard(Board);
         }
 
-        public void Run()
+        public void Run(bool backtracking)
         {
-            var result = Backtracking(Board);
+            var result = backtracking 
+                ? Backtracking(Board) 
+                : ForwardChecking(Board);
             Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
         }
         
@@ -67,6 +69,39 @@ namespace CSP
                     AddColorPair(row, col, neighbors);
 
                     if (Backtracking(board))
+                        return true;
+
+                    RemoveColorPair(row, col, neighbors);
+                    board[row, col] = null;
+                }
+            }
+            return false;
+        }
+
+
+        private bool ForwardChecking(int?[,] board)
+        {
+            var row = -1;
+            var col = -1;
+
+            if (!GetNextUnassigned(board, ref row, ref col))
+                return true;
+
+            var newDomain = new List<int>();
+            var neighbors = new HashSet<int>();
+            foreach (var value in _availbleValues)
+            {
+                if (CheckConstraints(neighbors, row, col, value))
+                    newDomain.Add(value);
+            }
+
+            foreach (var value in newDomain)
+            {
+                if (CheckConstraints(neighbors, row, col, value)) { 
+                    board[row, col] = value;
+                    AddColorPair(row, col, neighbors);
+
+                    if (ForwardChecking(board))
                         return true;
 
                     RemoveColorPair(row, col, neighbors);

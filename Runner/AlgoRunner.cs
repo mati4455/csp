@@ -18,7 +18,7 @@ namespace Runner
             {null, false, null, null, null, null }
         };
 
-        public AlgoRunner(int n, int m)
+        public AlgoRunner(int n, int m, bool backtracking)
         {/*
             var newBoard = StartBoardTrue;
 
@@ -58,7 +58,7 @@ namespace Runner
             var solver = new BinaryProblemSolver();
             solver.LoadBoard(board);
             Console.WriteLine(solver.PrintedBoard());
-            solver.Run();
+            solver.Run(backtracking);
             Console.WriteLine("------------------- Koniec testu -------------------");
 
         }

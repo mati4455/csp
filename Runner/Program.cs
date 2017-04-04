@@ -51,58 +51,25 @@ namespace Runner
 
                 int n = Int32.Parse(arguments["n"]);
                 int m = Int32.Parse(arguments["m"]);
-                var test = new AlgoRunner(n, m);
+                // -bt lub -fc
+                var test = new AlgoRunner(n, m, arguments.ContainsKey("bt"));
             }
-            else //if (arguments.ContainsKey("graph"))
+            else if (arguments.ContainsKey("graph"))
             {
                 Console.Clear();
                 Console.WriteLine("Witaj w programie rozwiazujacym problem kolorowania grafu harmonicznego.");
 
-                /*
-                var solver1 = new GraphColoringProblemSolver(2);
-                solver1.Run();
-                
-                var solver2 = new GraphColoringProblemSolver(3);
-                solver2.Run();
+                // -bt lub -fc
 
-                var solver3 = new GraphColoringProblemSolver(4);
-                solver3.Run();
+                int n = Int32.Parse(arguments["n"]);
 
-                var solver4 = new GraphColoringProblemSolver(5);
-                solver4.Run();
-
-                var solver5 = new GraphColoringProblemSolver(6);
-                solver5.Run();
-
-                var solver6 = new GraphColoringProblemSolver(7);
-                solver6.Run();
-
-                var solver7 = new GraphColoringProblemSolver(8);
-                solver7.Run();
-
-                var solver8 = new GraphColoringProblemSolver(9);
-                solver8.Run();
-
-                var solver9 = new GraphColoringProblemSolver(10);
-                solver9.Run();
-                */
-
-                //                var p1 = new Point(1, 3);
-                //                var p2 = new Point(3, 1);
-                //                Console.WriteLine(p1.GetHashCode());
-                //                Console.WriteLine(p2.GetHashCode());
-                //                Console.WriteLine(p1.Equals(p2));
-                //
-                //                Console.ReadKey();
+                var solver1 = new GraphColoringProblemSolver(n);
 
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-
-                var solver8 = new GraphColoringProblemSolver(12);
-                solver8.Run();
-                
+                solver1.Run(arguments.ContainsKey("bt"));
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
-                Console.WriteLine(elapsedMs);
+                Console.WriteLine($"Wyliczono w czasie: {elapsedMs}ms");
                 Console.ReadKey();
             }
         }

@@ -74,10 +74,11 @@ namespace CSP
             return CheckBoard(Board);
         }
         
-        public void Run()
+        public void Run(bool backtracking)
         {
-            //var result = Backtracking(Board);
-            var result = ForwardChecking(Board);
+            var result = backtracking 
+                ? Backtracking(Board)
+                : ForwardChecking(Board);
             Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
         }
 
