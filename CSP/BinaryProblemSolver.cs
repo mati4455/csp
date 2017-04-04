@@ -239,6 +239,28 @@ namespace CSP
 
         private bool GetNextUnassigned(bool?[,] board, ref int row, ref int col)
         {
+            var currRowIndex = 0;
+            var bestRowIndex = -1;
+            var min = 2*N;
+            while (currRowIndex < N)
+            {
+                var currRow = board.GetRow(currRowIndex);
+                var nullCount = currRow.Count(x => x == null);
+                if (nullCount < min && nullCount != 0)
+                {
+                    min = nullCount;
+                    bestRowIndex = currRowIndex;
+                }
+                currRowIndex++;
+            }
+
+            if (bestRowIndex == -1) return false;
+
+            row = bestRowIndex;
+            col = board.GetRow(bestRowIndex).ToList().IndexOf(null);
+            return true;
+
+            /*
             var length = board.GetLength(1);
             for (var i = 0; i < length; i++)
                 for (var j = 0; j < length; j++)
@@ -248,7 +270,7 @@ namespace CSP
                         col = j;
                         return true;
                     }
-            return false;
+            return false;*/
         }
     }
 }

@@ -61,7 +61,12 @@ namespace CSP
                 return true;
 
             var neighbors = new HashSet<int>();
-            foreach (var value in _availbleValues)
+
+            var newDomain = _availbleValues
+                .OrderBy(x => _usedColors.Count(y => y.X == x || y.Y == x))
+                .ToList();
+
+            foreach (var value in newDomain)
             {
                 if (CheckConstraints(neighbors, row, col, value))
                 {
@@ -94,6 +99,10 @@ namespace CSP
                 if (CheckConstraints(neighbors, row, col, value))
                     newDomain.Add(value);
             }
+
+            newDomain = newDomain
+                .OrderBy(x => _usedColors.Count(y => y.X == x || y.Y == x))
+                .ToList();
 
             foreach (var value in newDomain)
             {
