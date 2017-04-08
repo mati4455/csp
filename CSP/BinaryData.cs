@@ -14,6 +14,8 @@
                 case 10: return Set_10X10;
                 case 12: return Set_12X12;
                 case 14: return Set_14X14;
+                case 16: return Set_16x16;
+                case 18: return Set_18x18;
             }
             return null;
         }
@@ -105,12 +107,44 @@
 
         private static bool?[,] Set_16x16 =
         {
-
+            {true, true, false, true, true, false, true, false, true, false, false, true, false, false, true, false},
+            {true, false, true, false, true, true, false, true, false, true, true, false, false, true, false, false},
+            {false, false, true, true, false, true, true, false, true, false, true, false, true, false, false, true},
+            {false, true, false, false, true, false, false, true, true, false, false, true, true, false, true, true},
+            {true, true, false, true, true, false, true, false, false, true, true, false, false, true, false, false},
+            {false, false, true, true, false, true, true, false, true, true, false, true, false, false, true, false},
+            {true, true, false, false, true, false, false, true, false, false, true, false, true, true, false, true},
+            {true, false, true, false, true, false, true, false, true, false, true, false, true, false, false, true},
+            {false, true, false, true, false, true, true, false, false, true, false, true, false, true, true, false},
+            {true, false, true, false, false, true, false, true, true, false, false, true, true, false, true, false},
+            {true, false, true, false, true, false, false, true, false, false, true, false, true, true, false, true},
+            {false, true, false, true, false, false, true, false, true, true, false, true, false, true, true, false},
+            {false, false, true, true, false, true, false, true, false, true, false, true, true, false, false, true},
+            {true, true, false, false, true, false, true, false, true, false, true, false, false, true, true, false},
+            {false, false, true, false, false, true, false, true, false, true, true, false, true, true, false, true},
+            {false, true, false, true, false, true, false, true, false, true, false, true, false, false, true, true}
         };
         
         private static bool?[,] Set_18x18 =
         {
-
+            {true, false, true, false, true, false, true, false, false, true, true, false, true, true, false, true, false, false},
+            {false, true, true, false, true, false, true, false, true, true, false, true, false, false, true, false, true, false},
+            {false, true, false, true, false, true, false, true, false, false, true, true, false, true, false, true, false, true},
+            {true, false, true, true, false, true, false, true, false, true, false, false, true, false, true, false, true, false},
+            {false, true, false, false, true, false, true, false, true, true, false, true, false, true, false, true, true, false},
+            {true, false, false, true, false, true, false, true, false, false, true, false, true, false, true, true, false, true},
+            {false, true, true, false, true, false, false, true, true, false, false, true, false, true, true, false, false, true},
+            {true, true, false, true, false, true, true, false, false, true, true, false, false, true, false, false, true, false},
+            {true, false, true, true, false, true, false, true, true, false, false, true, true, false, false, true, false, false},
+            {false, true, false, false, true, false, true, false, false, true, true, false, true, false, true, false, true, true},
+            {false, false, true, true, false, true, false, false, true, false, true, true, false, true, false, true, false, true},
+            {true, true, false, false, true, true, false, true, true, false, false, true, false, true, false, true, false, false},
+            {true, false, false, true, false, false, true, true, false, true, false, false, true, false, true, false, true, true},
+            {false, false, true, true, false, true, false, false, true, false, true, false, true, false, true, false, true, true},
+            {true, true, false, false, true, false, true, true, false, true, false, true, false, true, false, true, false, false},
+            {false, false, true, false, true, false, true, false, true, false, true, false, true, true, false, true, false, true},
+            {false, true, false, true, false, true, false, true, true, false, false, true, false, false, true, false, true, true},
+            {true, false, true, false, true, false, true, false, false, true, true, false, true, false, true, false, true, false}
         };
     }
 }

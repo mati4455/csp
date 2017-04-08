@@ -12,9 +12,11 @@ namespace CSP
         private int M { get; set; }
         private bool _heurestic;
         private readonly List<bool> _avaibleValues = new List<bool> {true, false};
+        private readonly List<bool> _reverseValues = new List<bool> {false, true};
         private static bool Log = false;
-        
+        private int AsignCount { get; set; }
         private const int MaxRepeat = 2;
+        private bool? LastUsed { get; set; }
         
         public void LoadBoard(bool?[,] board)
         {
@@ -91,20 +93,21 @@ namespace CSP
             _heurestic = heurestic;
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
+            AsignCount = 0;
 
             var result = backtracking 
                 ? Backtracking(Board)
                 : ForwardChecking(Board);
-            Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
+            //Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
 
             watch.Stop();
-            var elapsedMs = watch.ElapsedMilliseconds;
-            Console.WriteLine($"Algorytm zakonczyl obliczenia w czasie: {elapsedMs}ms");
+            var elapsedMs = watch.Elapsed.TotalMilliseconds * 1000000;
+            //Console.WriteLine($"Algorytm zakonczyl obliczenia w czasie: {elapsedMs}ms");
 
-            return new Statistic
+            return new Statistic(N, backtracking, heurestic)
             {
                 Duration = elapsedMs,
-                ReturnCount = 0
+                AsignCount = AsignCount
             };
         }
 
@@ -209,9 +212,17 @@ namespace CSP
             if (!_heurestic && !GetNextUnassignedBasic(board, ref row, ref col))
                 return true;
 
-            foreach (var value in _avaibleValues)
+            var values = _heurestic && LastUsed.Value == _avaibleValues.First() 
+                ? _reverseValues 
+                : _avaibleValues;
+
+            foreach (var value in values)
             {
                 board[row, col] = value;
+
+                LastUsed = value;
+                AsignCount++;
+
                 if (CheckConstraints(board, row, col) && Backtracking(board))
                     return true;
             }
@@ -230,10 +241,14 @@ namespace CSP
             if (!_heurestic && !GetNextUnassignedBasic(board, ref row, ref col))
                 return true;
 
+            var values = _heurestic && LastUsed.Value == _avaibleValues.First()
+                ? _reverseValues
+                : _avaibleValues;
+
             var newDomain = new List<bool>();
             if (_heurestic)
             {
-                foreach (var value in _avaibleValues)
+                foreach (var value in values)
                 {
                     board[row, col] = value;
                     if (CheckConstraints(board, row, col))
@@ -247,36 +262,60 @@ namespace CSP
 
             foreach (var value in newDomain)
             {
+                AsignCount++;
                 board[row, col] = value;
+                LastUsed = value;
                 if (ForwardChecking(board))
                     return true;
             }
-
+            
             board[row, col] = null;
             return false;
         }
 
         private bool GetNextUnassignedHeurestic(bool?[,] board, ref int row, ref int col)
         {
-            var currRowIndex = 0;
+            var currIndex = 0;
+
             var bestRowIndex = -1;
-            var min = 2*N;
-            while (currRowIndex < N)
+            var bestColIndex = -1;
+
+            var minRow = 2*N;
+            var minCol = 2*N;
+
+            while (currIndex < N)
             {
-                var currRow = board.GetRow(currRowIndex);
-                var nullCount = currRow.Count(x => x == null);
-                if (nullCount < min && nullCount != 0)
+                var currRow = board.GetRow(currIndex);
+                var nullRowCount = currRow.Count(x => x == null);
+                if (nullRowCount < minRow && nullRowCount != 0)
                 {
-                    min = nullCount;
-                    bestRowIndex = currRowIndex;
+                    minRow = nullRowCount;
+                    bestRowIndex = currIndex;
                 }
-                currRowIndex++;
+                var currCol = board.GetRow(currIndex);
+                var nullColCount = currCol.Count(x => x == null);
+                if (nullColCount < minCol && nullColCount != 0)
+                {
+                    minRow = nullRowCount;
+                    bestColIndex = currIndex;
+                }
+
+                currIndex++;
             }
 
-            if (bestRowIndex == -1) return false;
+            if (bestRowIndex == -1 && bestColIndex == -1) return false;
 
-            row = bestRowIndex;
-            col = board.GetRow(bestRowIndex).ToList().IndexOf(null);
+            if (minRow > minCol)
+            {
+                row = board.GetCol(bestColIndex).ToList().IndexOf(null);
+                col = bestColIndex;
+            }
+            else
+            {
+                row = bestRowIndex;
+                col = board.GetRow(bestRowIndex).ToList().IndexOf(null);
+            }
+
             return true;
         }
 

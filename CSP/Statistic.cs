@@ -4,18 +4,30 @@ namespace CSP
 {
     public class Statistic
     {
-        public long Duration { get; set; }
-        public long ReturnCount { get; set; }
+        public int N { get; set; }
+        public double Duration { get; set; }
+        public long AsignCount { get; set; }
+        public bool Backtracking { get; set; }
+        public bool Heurestic { get; set; }
+
+        public Statistic(int n, bool b, bool h)
+        {
+            N = n;
+            Backtracking = b;
+            Heurestic = h;
+        }
 
         public void Add(Statistic s)
         {
             Duration += s.Duration;
-            ReturnCount += s.ReturnCount;
+            AsignCount += s.AsignCount;
         }
 
         public void PrintResult(int numberOfCycles)
         {
-            Console.WriteLine($"{Duration/numberOfCycles}\t{ReturnCount/numberOfCycles}");
+            var method = Backtracking ? "bt" : "fc";
+            var heurestic = Heurestic ? "++" : "--";
+            Console.WriteLine($"{N}\t{method}\t{heurestic}\t{Duration/numberOfCycles}\t{AsignCount / numberOfCycles}");
         }
     }
 }

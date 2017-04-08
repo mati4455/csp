@@ -10,6 +10,7 @@ namespace CSP
         private int?[,] Board { get; }
         private int N { get; }
         private bool _heurestic;
+        private int AsignCount { get; set; }
         private List<int> _availbleValues;
         private HashSet<Point> _usedColors;
 
@@ -32,17 +33,17 @@ namespace CSP
             var result = backtracking 
                 ? Backtracking(Board) 
                 : ForwardChecking(Board);
-            Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
+            //Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
 
             watch.Stop();
-            var elapsedMs = watch.ElapsedMilliseconds;
-            Console.WriteLine($"Algorytm zakonczyl obliczenia w czasie: {elapsedMs}ms");
+            var elapsedMs = watch.Elapsed.TotalMilliseconds * 1000000;
+            //Console.WriteLine($"Algorytm zakonczyl obliczenia w czasie: {elapsedMs}ms");
 
-            return new Statistic
+            return new Statistic(N, backtracking, heurestic)
             {
                 Duration = elapsedMs,
-                ReturnCount = 0
-            };
+                AsignCount = AsignCount
+        };
         }
         
         public bool CheckConstraints(HashSet<int> neighbors, int row, int col, int color)
@@ -93,6 +94,7 @@ namespace CSP
                 if (CheckConstraints(neighbors, row, col, value))
                 {
                     board[row, col] = value;
+                    AsignCount++;
                     AddColorPair(row, col, neighbors);
 
                     if (Backtracking(board))
@@ -134,6 +136,7 @@ namespace CSP
 
             foreach (var value in newDomain)
             {
+                AsignCount++;
                 if (CheckConstraints(neighbors, row, col, value)) { 
                     board[row, col] = value;
                     AddColorPair(row, col, neighbors);
@@ -165,16 +168,24 @@ namespace CSP
         private bool GetNextUnassignedHeurestic(int?[,] board, ref int row, ref int col)
         {
             var length = board.GetLength(1);
-            for (var i = 0; i < length; i++)
-                for (var j = 0; j < length; j++)
-                    if (board[i, j] == null)
+            var startIndex = length / 2;
+            var endIndex = startIndex + length;
+
+            for (var i = startIndex; i < endIndex; i++)
+                for (var j = startIndex; j < endIndex; j++)
+                {
+                    var newI = (i + length) % length;
+                    var newJ = (j + length) % length;
+                    if (board[newI, newJ] == null)
                     {
-                        row = i;
-                        col = j;
+                        row = newI;
+                        col = newJ;
                         return true;
                     }
+                }
             return false;
         }
+        
 
         private bool GetNextUnassignedBasic(int?[,] board, ref int row, ref int col)
         {
