@@ -7,8 +7,9 @@ namespace CSP
 {
     public class GraphColoringProblemSolver
     {
-        private int?[,] Board { get; set; }
-        private int N { get; set; }
+        private int?[,] Board { get; }
+        private int N { get; }
+        private bool _heurestic;
         private List<int> _availbleValues;
         private HashSet<Point> _usedColors;
 
@@ -23,12 +24,19 @@ namespace CSP
             return PrintedBoard(Board);
         }
 
-        public void Run(bool backtracking)
+        public void Run(bool backtracking, bool heurestic)
         {
+            _heurestic = heurestic;
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
             var result = backtracking 
                 ? Backtracking(Board) 
                 : ForwardChecking(Board);
             Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
+
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine($"Algorytm zakonczyl obliczenia w czasie: {elapsedMs}ms");
         }
         
         public bool CheckConstraints(HashSet<int> neighbors, int row, int col, int color)
@@ -37,13 +45,10 @@ namespace CSP
             CheckAndAddNearbear(neighbors, row - 1, col);
             CheckAndAddNearbear(neighbors, row, col - 1);
             
-            //var color = Board[row, col].Value;
             var neighbor = !neighbors.Contains(color);
             var harmony = !neighbors.Any(x => _usedColors.Contains(new Point(color, x)) || _usedColors.Contains(new Point(x, color)));
             var check = neighbor && harmony;
-
-            /*if (check)
-                AddColorPair(row, col, neighbors);*/
+            
             return check;
         }
 
@@ -57,14 +62,25 @@ namespace CSP
             int row = -1,
                 col = -1;
 
-            if (!GetNextUnassigned(board, ref row, ref col))
+            if (_heurestic && !GetNextUnassignedHeurestic(board, ref row, ref col))
+                return true;
+
+            if (!_heurestic && !GetNextUnassignedBasic(board, ref row, ref col))
                 return true;
 
             var neighbors = new HashSet<int>();
 
-            var newDomain = _availbleValues
-                .OrderBy(x => _usedColors.Count(y => y.X == x || y.Y == x))
-                .ToList();
+            var newDomain = new List<int>();
+            if (_heurestic)
+            {
+                newDomain = _availbleValues
+                    .OrderByDescending(x => _usedColors.Count(y => y.X == x || y.Y == x))
+                    .ToList();
+            }
+            else
+            {
+                newDomain.AddRange(_availbleValues);
+            }
 
             foreach (var value in newDomain)
             {
@@ -86,10 +102,13 @@ namespace CSP
 
         private bool ForwardChecking(int?[,] board)
         {
-            var row = -1;
-            var col = -1;
+            int row = -1,
+                col = -1;
 
-            if (!GetNextUnassigned(board, ref row, ref col))
+            if (_heurestic && !GetNextUnassignedHeurestic(board, ref row, ref col))
+                return true;
+
+            if (!_heurestic && !GetNextUnassignedBasic(board, ref row, ref col))
                 return true;
 
             var newDomain = new List<int>();
@@ -100,9 +119,12 @@ namespace CSP
                     newDomain.Add(value);
             }
 
-            newDomain = newDomain
-                .OrderBy(x => _usedColors.Count(y => y.X == x || y.Y == x))
-                .ToList();
+            if (_heurestic)
+            {
+                newDomain = newDomain
+                    .OrderBy(x => _usedColors.Count(y => y.X == x || y.Y == x))
+                    .ToList();
+            }
 
             foreach (var value in newDomain)
             {
@@ -134,7 +156,7 @@ namespace CSP
                 _usedColors.Remove(new Point(color, neighbor));
         }
 
-        private bool GetNextUnassigned(int?[,] board, ref int row, ref int col)
+        private bool GetNextUnassignedHeurestic(int?[,] board, ref int row, ref int col)
         {
             var length = board.GetLength(1);
             for (var i = 0; i < length; i++)
@@ -147,6 +169,21 @@ namespace CSP
                     }
             return false;
         }
+
+        private bool GetNextUnassignedBasic(int?[,] board, ref int row, ref int col)
+        {
+            var length = board.GetLength(1);
+            for (var i = 0; i < length; i++)
+                for (var j = 0; j < length; j++)
+                    if (board[i, j] == null)
+                    {
+                        row = i;
+                        col = j;
+                        return true;
+                    }
+            return false;
+        }
+
         private string PrintedBoard(int?[,] board)
         {
             if (board == null) return "Brak rozwiazania...";

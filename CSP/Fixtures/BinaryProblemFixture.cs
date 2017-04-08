@@ -117,7 +117,7 @@ namespace CSP.Fixtures
 
             Solver.LoadBoard(StartBoardTrue);
             Console.WriteLine(Solver.PrintedBoard());
-            Solver.Run(true);
+            Solver.Run(true, true);
             Console.WriteLine(Solver.PrintedBoard());
             Console.WriteLine("------------------- Koniec testu -------------------");
             Assert.AreEqual(true, Solver.CheckBoard());

@@ -10,37 +10,49 @@ namespace CSP
         private bool?[,] Board { get; set; }
         private int N { get; set; }
         private int M { get; set; }
-        private readonly List<bool> _avaibleValues = new List<bool>() {true, false};
+        private bool _heurestic;
+        private readonly List<bool> _avaibleValues = new List<bool> {true, false};
         private static bool Log = false;
-
+        
         private const int MaxRepeat = 2;
-
+        
         public void LoadBoard(bool?[,] board)
         {
             Board = board;
             N = board.GetLength(1);
         }
 
-        public void GenerateBoard(int n, int m)
+        public void GenerateBoard(int n, int m, bool useDefaultBoards)
         {
             N = n;
-            M = m;
-            Board = new bool?[N, N];
+            M = Math.Min(m, N*N);
 
-            for (var i = 0; i < N; i++)
-            for (var j = 0; j < N; j++)
-                Board[i, j] = null;
+            if (useDefaultBoards)
+            {
+                LoadBoard(BinaryData.GetSet(n));
+            }
+            else
+            {
+                Board = new bool?[N, N];
+
+                for (var i = 0; i < N; i++)
+                for (var j = 0; j < N; j++)
+                    Board[i, j] = null;
+
+                Run(true, true);
+            }
 
             var rand = new Random();
             var added = 0;
-            while (added < M)
+            var toRemove = N*N - M;
+            while (added < toRemove)
             {
                 var x = rand.Next(0, N);
                 var y = rand.Next(0, N);
 
-                if (Board[x, y] == null)
+                if (Board[x, y] != null)
                 {
-                    Board[x, y] = rand.NextDouble() >= 0.5;
+                    Board[x, y] = null;
                     added++;
                 }
             }
@@ -74,12 +86,20 @@ namespace CSP
             return CheckBoard(Board);
         }
         
-        public void Run(bool backtracking)
+        public void Run(bool backtracking, bool heurestic)
         {
+            _heurestic = heurestic;
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
             var result = backtracking 
                 ? Backtracking(Board)
                 : ForwardChecking(Board);
             Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
+
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine($"Algorytm zakonczyl obliczenia w czasie: {elapsedMs}ms");
         }
 
         public bool CheckBoard(bool?[,] board)
@@ -100,28 +120,18 @@ namespace CSP
             var colValue = board.GetCol(col);
             var n = rowValue.Length;
             var half = n / 2;
-
-            if (Log) Console.WriteLine("-----------------");
-
-            if (Log) Console.WriteLine($"Uzupelniono pole ({row}, {col})");
-
+            
             // liczba 0 i 1 w wierszu ma być taka sama
             var zerosRowCount = rowValue.Count(x => x == false);
             var onesRowCount = rowValue.Count(x => x == true);
             if (zerosRowCount > half || onesRowCount > half)
-            {
-                if (Log) Console.WriteLine($"Rozna liczba zer i jedynek w wierszu: {row}");
                 return false;
-            }
 
             // liczba 0 i 1 w kolumnie ma być taka sama
             var zerosColCount = colValue.Count(x => x == false);
             var onesColCount = colValue.Count(x => x == true);
             if (zerosColCount > half || onesColCount > half)
-            {
-                if (Log) Console.WriteLine($"Rozna liczba zer i jedynek w kolumnie: {col}");
                 return false;
-            }
 
             // symbol nie może powtarzać się dwa razy pod rząd
             var validRow = CheckRepeat(rowValue);
@@ -140,25 +150,13 @@ namespace CSP
             {
                 var currRow = board.GetRow(i);
                 if (!isNullInRow && i != row && rowValue.SequenceEqual(currRow))
-                {
-                    if (Log) Console.WriteLine($"Powtorzone wiersze: {row} - {i}");
                     return false;
-                }
 
                 var currCol = board.GetCol(i);
                 if (!isNullInCol && i != col && !ContainsNull(currCol) && colValue.SequenceEqual(currCol))
-                {
-                    if (Log) Console.WriteLine($"Powtorzone kolumny: {col} - {i}");
                     return false;
-                }
             }
-
-            //Console.WriteLine(PrintedBoard());
-
-            //Console.ReadKey();
-
-            //if (Log) Console.WriteLine($"----------------- -> {check}\n\n");
-
+            
             return true;
         }
 
@@ -178,10 +176,7 @@ namespace CSP
                     repeatCount++;
 
                     if (repeatCount >= MaxRepeat)
-                    {
-                        if (Log) Console.WriteLine($"Liczba powtorzen pod rzad jest wieksza niz {MaxRepeat}.");
                         return false;
-                    }
                 }
                 else
                 {
@@ -197,7 +192,10 @@ namespace CSP
             var row = -1;
             var col = -1;
 
-            if (!GetNextUnassigned(board, ref row, ref col))
+            if (_heurestic && !GetNextUnassignedHeurestic(board, ref row, ref col))
+                return true;
+
+            if (!_heurestic && !GetNextUnassignedBasic(board, ref row, ref col))
                 return true;
 
             foreach (var value in _avaibleValues)
@@ -215,18 +213,28 @@ namespace CSP
             var row = -1;
             var col = -1;
 
-            if (!GetNextUnassigned(board, ref row, ref col))
+            if (_heurestic && !GetNextUnassignedHeurestic(board, ref row, ref col))
                 return true;
 
-            var _newDomain = new List<bool>();
-            foreach (var value in _avaibleValues)
+            if (!_heurestic && !GetNextUnassignedBasic(board, ref row, ref col))
+                return true;
+
+            var newDomain = new List<bool>();
+            if (_heurestic)
             {
-                board[row, col] = value;
-                if (CheckConstraints(board, row, col))
-                    _newDomain.Add(value);
+                foreach (var value in _avaibleValues)
+                {
+                    board[row, col] = value;
+                    if (CheckConstraints(board, row, col))
+                        newDomain.Add(value);
+                }
+            }
+            else
+            {
+                newDomain.AddRange(_avaibleValues);
             }
 
-            foreach (var value in _newDomain)
+            foreach (var value in newDomain)
             {
                 board[row, col] = value;
                 if (ForwardChecking(board))
@@ -237,7 +245,7 @@ namespace CSP
             return false;
         }
 
-        private bool GetNextUnassigned(bool?[,] board, ref int row, ref int col)
+        private bool GetNextUnassignedHeurestic(bool?[,] board, ref int row, ref int col)
         {
             var currRowIndex = 0;
             var bestRowIndex = -1;
@@ -259,8 +267,10 @@ namespace CSP
             row = bestRowIndex;
             col = board.GetRow(bestRowIndex).ToList().IndexOf(null);
             return true;
+        }
 
-            /*
+        private bool GetNextUnassignedBasic(bool?[,] board, ref int row, ref int col)
+        {
             var length = board.GetLength(1);
             for (var i = 0; i < length; i++)
                 for (var j = 0; j < length; j++)
@@ -270,7 +280,7 @@ namespace CSP
                         col = j;
                         return true;
                     }
-            return false;*/
+            return false;
         }
     }
 }

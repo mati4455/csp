@@ -52,7 +52,14 @@ namespace Runner
                 int n = Int32.Parse(arguments["n"]);
                 int m = Int32.Parse(arguments["m"]);
                 // -bt lub -fc
-                var test = new AlgoRunner(n, m, arguments.ContainsKey("bt"));
+                // -h // heurestic
+
+                Console.WriteLine($"--------------- Poczatek testu {n}x{n} ---------------");
+                var solverBinary = new BinaryProblemSolver();
+                solverBinary.GenerateBoard(n, m, true);
+                Console.WriteLine(solverBinary.PrintedBoard());
+                solverBinary.Run(arguments.ContainsKey("bt"), arguments.ContainsKey("h"));
+                Console.WriteLine("------------------- Koniec testu -------------------");
             }
             else if (arguments.ContainsKey("graph"))
             {
@@ -60,17 +67,12 @@ namespace Runner
                 Console.WriteLine("Witaj w programie rozwiazujacym problem kolorowania grafu harmonicznego.");
 
                 // -bt lub -fc
+                // -h // heurestic
 
                 int n = Int32.Parse(arguments["n"]);
 
-                var solver1 = new GraphColoringProblemSolver(n);
-
-                var watch = System.Diagnostics.Stopwatch.StartNew();
-                solver1.Run(arguments.ContainsKey("bt"));
-                watch.Stop();
-                var elapsedMs = watch.ElapsedMilliseconds;
-                Console.WriteLine($"Wyliczono w czasie: {elapsedMs}ms");
-                Console.ReadKey();
+                var solverGraph = new GraphColoringProblemSolver(n);
+                solverGraph.Run(arguments.ContainsKey("bt"), arguments.ContainsKey("h"));
             }
         }
     }
