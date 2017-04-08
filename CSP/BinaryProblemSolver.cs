@@ -18,7 +18,7 @@ namespace CSP
         
         public void LoadBoard(bool?[,] board)
         {
-            Board = board;
+            Board = (bool?[,]) board.Clone();
             N = board.GetLength(1);
         }
 
@@ -86,7 +86,7 @@ namespace CSP
             return CheckBoard(Board);
         }
         
-        public void Run(bool backtracking, bool heurestic)
+        public Statistic Run(bool backtracking, bool heurestic)
         {
             _heurestic = heurestic;
 
@@ -100,6 +100,17 @@ namespace CSP
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
             Console.WriteLine($"Algorytm zakonczyl obliczenia w czasie: {elapsedMs}ms");
+
+            return new Statistic
+            {
+                Duration = elapsedMs,
+                ReturnCount = 0
+            };
+        }
+
+        public bool?[,] GetCopyBoard()
+        {
+            return (bool?[,]) Board.Clone();
         }
 
         public bool CheckBoard(bool?[,] board)

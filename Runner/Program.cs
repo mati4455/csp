@@ -27,6 +27,7 @@ namespace Runner
     {
         static void Main(string[] args)
         {
+            var cycleCount = 10;
             var arguments = new Dictionary<string, string>();
 
             foreach (string argument in args)
@@ -55,10 +56,21 @@ namespace Runner
                 // -h // heurestic
 
                 Console.WriteLine($"--------------- Poczatek testu {n}x{n} ---------------");
+
                 var solverBinary = new BinaryProblemSolver();
                 solverBinary.GenerateBoard(n, m, true);
+                var copyBoard = solverBinary.GetCopyBoard();
+                solverBinary.LoadBoard(copyBoard);
                 Console.WriteLine(solverBinary.PrintedBoard());
-                solverBinary.Run(arguments.ContainsKey("bt"), arguments.ContainsKey("h"));
+                var sum = new Statistic();
+                for (var i = 0; i < cycleCount; i++)
+                {
+                    solverBinary.LoadBoard(copyBoard);
+                    var subRes = solverBinary.Run(arguments.ContainsKey("bt"), arguments.ContainsKey("h"));
+                    sum.Add(subRes);
+                }
+                Console.WriteLine("Wyniki: ");
+                sum.PrintResult(cycleCount);
                 Console.WriteLine("------------------- Koniec testu -------------------");
             }
             else if (arguments.ContainsKey("graph"))
@@ -71,8 +83,16 @@ namespace Runner
 
                 int n = Int32.Parse(arguments["n"]);
 
-                var solverGraph = new GraphColoringProblemSolver(n);
-                solverGraph.Run(arguments.ContainsKey("bt"), arguments.ContainsKey("h"));
+                var sumGraph = new Statistic();
+                for (var i = 0; i < cycleCount; i++)
+                {
+                    var solverGraph = new GraphColoringProblemSolver(n);
+                    var subResGraph = solverGraph.Run(arguments.ContainsKey("bt"), arguments.ContainsKey("h"));
+                    sumGraph.Add(subResGraph);
+                }
+
+                Console.WriteLine("Wyniki: ");
+                sumGraph.PrintResult(cycleCount);
             }
         }
     }

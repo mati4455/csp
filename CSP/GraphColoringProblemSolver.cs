@@ -24,7 +24,7 @@ namespace CSP
             return PrintedBoard(Board);
         }
 
-        public void Run(bool backtracking, bool heurestic)
+        public Statistic Run(bool backtracking, bool heurestic)
         {
             _heurestic = heurestic;
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -37,6 +37,12 @@ namespace CSP
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
             Console.WriteLine($"Algorytm zakonczyl obliczenia w czasie: {elapsedMs}ms");
+
+            return new Statistic
+            {
+                Duration = elapsedMs,
+                ReturnCount = 0
+            };
         }
         
         public bool CheckConstraints(HashSet<int> neighbors, int row, int col, int color)
