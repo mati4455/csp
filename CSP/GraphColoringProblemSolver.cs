@@ -33,7 +33,7 @@ namespace CSP
             var result = backtracking 
                 ? Backtracking(Board) 
                 : ForwardChecking(Board);
-            //Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
+            Console.WriteLine(result ? PrintedBoard() : "Brak rozwiazania");
 
             watch.Stop();
             var elapsedMs = watch.Elapsed.TotalMilliseconds * 1000000;

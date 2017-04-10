@@ -28,7 +28,7 @@ namespace Runner
     {
         static void Main(string[] args)
         {
-            var cycleCount = 5;
+            var cycleCount = 1;
             var arguments = new Dictionary<string, string>();
             var _trueFalse = new List<bool> { false, true };
 
@@ -103,8 +103,9 @@ namespace Runner
                 Console.WriteLine("Witaj w programie rozwiazujacym problem binary.");
 
                 int nN = Int32.Parse(arguments["n"]);
+                int mM = Int32.Parse(arguments["m"]);
 
-                for (int n = 2; n <= nN; n += 2)
+                for (int n = mM; n <= nN; n += 2)
                 {
 
                     int m = (int) (0.5 * n * n);

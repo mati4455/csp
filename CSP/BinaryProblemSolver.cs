@@ -241,7 +241,7 @@ namespace CSP
             if (!_heurestic && !GetNextUnassignedBasic(board, ref row, ref col))
                 return true;
 
-            var values = _heurestic && LastUsed.Value == _avaibleValues.First()
+            var values = _heurestic && LastUsed == _avaibleValues.First()
                 ? _reverseValues
                 : _avaibleValues;
 
@@ -272,7 +272,7 @@ namespace CSP
             board[row, col] = null;
             return false;
         }
-
+        
         private bool GetNextUnassignedHeurestic(bool?[,] board, ref int row, ref int col)
         {
             var currIndex = 0;
@@ -317,6 +317,27 @@ namespace CSP
             }
 
             return true;
+        }
+
+        private bool GetNextUnassignedHeuresticClassic(bool?[,] board, ref int row, ref int col)
+        {
+            var length = board.GetLength(1);
+            var startIndex = length / 2;
+            var endIndex = startIndex + length;
+
+            for (var i = startIndex; i < endIndex; i++)
+                for (var j = startIndex; j < endIndex; j++)
+                {
+                    var newI = (i + length) % length;
+                    var newJ = (j + length) % length;
+                    if (board[newI, newJ] == null)
+                    {
+                        row = newI;
+                        col = newJ;
+                        return true;
+                    }
+                }
+            return false;
         }
 
         private bool GetNextUnassignedBasic(bool?[,] board, ref int row, ref int col)
